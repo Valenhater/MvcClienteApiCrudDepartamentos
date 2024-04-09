@@ -1,0 +1,111 @@
+﻿@section Scripts{
+    <script>
+        var apiUrl = "https://apicorecruddepartamentosvalentin.azurewebsites.net/";
+        $(document).ready(function(){
+            loadDepartamentos();
+            $("#botoninsert").click(function () {
+                var id = parseInt($("#cajaid").val());
+                var nombre = $("#cajanombre").val();
+                var localidad = $("#cajalocalidad").val();
+                var dataJson = convertDeptToJson(id, nombre, localidad);
+                console.log(dataJson);
+                var request = "api/departamentos";
+                $.ajax({
+                    url: apiUrl + request,
+                    type: "POST",
+                    data: dataJson,
+                    contentType:"application/json",
+                    success: function(){
+                        loadDepartamentos();
+                    }
+                })
+            })
+            $("#botonupdate").click(function () {
+                var id = parseInt($("#cajaid").val());
+                var nombre = $("#cajanombre").val();
+                var localidad = $("#cajalocalidad").val();
+                var dataJson = convertDeptToJson(id, nombre, localidad);
+                var request = "api/departamentos";
+                $.ajax({
+                    url: apiUrl + request,
+                    type: "PUT",
+                    data: dataJson,
+                    contentType: "application/json",
+                    success: function () {
+                        loadDepartamentos();
+                    }
+                })
+            })
+            $("#botondelete").click(function () {
+                var id = $("#cajaid").val();
+                var request = "api/departamentos/" + id;
+                $.ajax({
+                    url: apiUrl + request,
+                    type: "DELETE",
+                    success: function () {
+                        loadDepartamentos();
+                    }
+                })
+            })
+        })
+
+        function convertDeptToJson(id, nombre, localidad) {
+            var dept = new Object();
+            dept.idDepartamento = id;
+            dept.nombre = nombre;
+            dept.localidad = localidad;
+            var dataJson = JSON.stringify(dept);
+            return dataJson;
+        }
+
+        function loadDepartamentos(){
+            var request = "api/departamentos";
+            $.ajax({
+                url: apiUrl + request,
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    var html = "";
+                    $.each(data, function (index, dept) {
+                        html += "<tr>";
+                        html += "<td>" + dept.idDepartamento + "</td>"
+                        html += "<td>" + dept.nombre + "</td>"
+                        html += "<td>" + dept.localidad + "</td>"
+                        html += "</tr>";
+                    })
+                    $("#tabladepartamentos tbody").html(html);
+                }
+            })
+        }
+    </script>
+}
+
+<h1 style="color:purple">Api Crud Departamentos</h1>
+<label>Id Departamento</label>
+<input type="text" id="cajaid" class="form-control" />
+<label>Nombre</label>
+<input type="text" id="cajanombre" class="form-control" />
+<label>Localidad</label>
+<input type="text" id="cajalocalidad" class="form-control" />
+<button class="btn btn-outline-success" id="botoninsert">
+    Insertar
+</button>
+<button class="btn btn-outline-dark" id="botonupdate">
+    Update
+</button>
+<button class="btn btn-outline-danger" id="botondelete">
+    Delete
+</button>
+
+<hr />
+
+<table class="table table-warning" id="tabladepartamentos">
+    <thead>
+        <tr>
+            <th>Id Departamento</th>
+            <th>Nombre</th>
+            <th>Localidad</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
