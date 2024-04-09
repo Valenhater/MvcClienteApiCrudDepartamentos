@@ -1,4 +1,7 @@
 ﻿@section Scripts{
+
+    <script src="~/js/serviceapidepartamentos.js"></script>
+
     <script>
         var apiUrl = "https://apicorecruddepartamentosvalentin.azurewebsites.net/";
         $(document).ready(function(){
@@ -7,74 +10,39 @@
                 var id = parseInt($("#cajaid").val());
                 var nombre = $("#cajanombre").val();
                 var localidad = $("#cajalocalidad").val();
-                var dataJson = convertDeptToJson(id, nombre, localidad);
-                console.log(dataJson);
-                var request = "api/departamentos";
-                $.ajax({
-                    url: apiUrl + request,
-                    type: "POST",
-                    data: dataJson,
-                    contentType:"application/json",
-                    success: function(){
-                        loadDepartamentos();
-                    }
+                insertDepartamentoAsync(id,nombre,localidad, function(){
+                    loadDepartamentos(); //El function este del final es para la funcion callBack para que pueda refrescar los depts en este ejemplo
                 })
             })
             $("#botonupdate").click(function () {
                 var id = parseInt($("#cajaid").val());
                 var nombre = $("#cajanombre").val();
                 var localidad = $("#cajalocalidad").val();
-                var dataJson = convertDeptToJson(id, nombre, localidad);
-                var request = "api/departamentos";
-                $.ajax({
-                    url: apiUrl + request,
-                    type: "PUT",
-                    data: dataJson,
-                    contentType: "application/json",
-                    success: function () {
-                        loadDepartamentos();
-                    }
+                updateDepartamentoAsync(id, nombre, localidad, function () {
+                    loadDepartamentos(); 
                 })
             })
             $("#botondelete").click(function () {
                 var id = $("#cajaid").val();
-                var request = "api/departamentos/" + id;
-                $.ajax({
-                    url: apiUrl + request,
-                    type: "DELETE",
-                    success: function () {
-                        loadDepartamentos();
-                    }
-                })
+                deleteDepartamentoAsync(id, function () {
+                    loadDepartamentos(); 
+                });
+                console.log("Listo");
+                loadDepartamentos();
             })
         })
 
-        function convertDeptToJson(id, nombre, localidad) {
-            var dept = new Object();
-            dept.idDepartamento = id;
-            dept.nombre = nombre;
-            dept.localidad = localidad;
-            var dataJson = JSON.stringify(dept);
-            return dataJson;
-        }
-
-        function loadDepartamentos(){
-            var request = "api/departamentos";
-            $.ajax({
-                url: apiUrl + request,
-                type: "GET",
-                dataType: "json",
-                success: function (data) {
-                    var html = "";
-                    $.each(data, function (index, dept) {
-                        html += "<tr>";
-                        html += "<td>" + dept.idDepartamento + "</td>"
-                        html += "<td>" + dept.nombre + "</td>"
-                        html += "<td>" + dept.localidad + "</td>"
-                        html += "</tr>";
-                    })
-                    $("#tabladepartamentos tbody").html(html);
-                }
+        function loadDepartamentos() {
+            getJsonDepartamentosAsync(function (data) {
+                var html = "";
+                $.each(data, function (index, dept) {
+                    html += "<tr>";
+                    html += "<td>" + dept.idDepartamento + "</td>"
+                    html += "<td>" + dept.nombre + "</td>"
+                    html += "<td>" + dept.localidad + "</td>"
+                    html += "</tr>";
+                })
+                $("#tabladepartamentos tbody").html(html);
             })
         }
     </script>
